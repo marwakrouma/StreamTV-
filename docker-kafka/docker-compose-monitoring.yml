@@ -1,0 +1,100 @@
+version: "3.5"
+services:
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:${version_confluent}
+    container_name: control-center
+    restart: always
+    networks:
+      - confluent
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka-1:9092
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: zk-1:2181
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
+      CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_STREAMS_CONSUMER_REQUEST_TIMEOUT_MS: "960032"
+      CONTROL_CENTER_CONNECT_CLUSTER: "connect:8083"
+      CONTROL_CENTER_KSQL_URL: "http://ksql-server:8088"
+      CONTROL_CENTER_KSQL_ADVERTISED_URL: "http://localhost:8088"
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+
+  zk-1-jmx-exporter:
+    build: ./build/prometheus-jmx-exporter
+    container_name: zk-1-jmx-exporter
+    hostname: zk-1-jmx-exporter
+    networks:
+      - confluent
+    environment:
+      - JMX_PORT=39999
+      - JMX_HOST=zk-1
+      - HTTP_PORT=8080
+      - JMX_EXPORTER_CONFIG_FILE=kafka.yml
+
+  kafka-1-jmx-exporter:
+    build: ./build/prometheus-jmx-exporter
+    container_name: kafka-1-jmx-exporter
+    hostname: kafka-1-jmx-exporter
+    networks:
+      - confluent
+    environment:
+      - JMX_PORT=49999
+      - JMX_HOST=kafka-1
+      - HTTP_PORT=8080
+      - JMX_EXPORTER_CONFIG_FILE=kafka.yml
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    hostname: prometheus
+    networks:
+      - confluent
+    volumes:
+      - ./mount/prometheus/:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    hostname: grafana
+    networks:
+      - confluent
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    hostname: cadvisor
+    networks:
+      - confluent
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+  monitoring:
+    build: ./build/monitoring
+    container_name: monitoring
+    networks:
+      - confluent
+    depends_on:
+      - grafana
+    volumes:
+      - ./mount/grafana/dashboards/:/dashboards/
+
+networks:
+  confluent:

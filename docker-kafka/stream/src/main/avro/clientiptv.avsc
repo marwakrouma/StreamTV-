@@ -1,0 +1,23 @@
+
+{
+  "namespace": "fr.sfr.data.kafka.model",
+  "name": "ClientIptv",
+  "type": "record",
+  "fields": [
+        {
+            "name": "clientmac",
+            "type": ["null", "string"],
+            "default" : null
+        },
+        {
+            "name": "iptvmac",
+            "type": ["null", "string"],
+            "default" : null
+        },
+        {
+            "name": "clientid",
+            "type": ["null", "string"],
+            "default" : null
+        }
+  ]
+}

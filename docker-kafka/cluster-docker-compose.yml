@@ -1,0 +1,227 @@
+version: "3.5"
+services:
+  zk-1:
+    image: confluentinc/cp-zookeeper:${version_confluent}
+    container_name: zk-1
+    # restart: always
+    volumes:
+      - data-zk-1:/var/lib/zookeeper
+    networks:
+      - confluent
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 4000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk-1:2888:3888;zk-2:2888:3888;zk-3:2888:3888
+      KAFKA_JMX_PORT: 39999
+      KAFKA_JMX_HOSTNAME: zk-1
+
+  zk-2:
+    image: confluentinc/cp-zookeeper:${version_confluent}
+    container_name: zk-2
+    # restart: always
+    volumes:
+      - data-zk-2:/var/lib/zookeeper
+    networks:
+      - confluent
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 4000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk-1:2888:3888;zk-2:2888:3888;zk-3:2888:3888
+      KAFKA_JMX_PORT: 39999
+      KAFKA_JMX_HOSTNAME: zk-2
+
+  zk-3:
+    image: confluentinc/cp-zookeeper:${version_confluent}
+    container_name: zk-3
+    # restart: always
+    volumes:
+      - data-zk-3:/var/lib/zookeeper
+    networks:
+      - confluent
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 4000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk-1:2888:3888;zk-2:2888:3888;zk-3:2888:3888
+      KAFKA_JMX_PORT: 39999
+      KAFKA_JMX_HOSTNAME: zk-3
+
+  kafka-1:
+    image: "confluentinc/cp-enterprise-kafka:${version_confluent}"
+    container_name: kafka-1
+    hostname: kafka-1
+    networks:
+      - confluent
+    volumes:
+      - data-kafka-1:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 101
+      KAFKA_ZOOKEEPER_CONNECT: zk-1:2181,zk-2:2181,zk-3:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_METRIC_REPORTERS: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
+      KAFKA_JMX_PORT: 49999
+      KAFKA_JMX_HOSTNAME: kafka-1
+
+  kafka-2:
+    image: "confluentinc/cp-enterprise-kafka:${version_confluent}"
+    container_name: kafka-2
+    hostname: kafka-2
+    networks:
+      - confluent
+    volumes:
+      - data-kafka-2:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 102
+      KAFKA_ZOOKEEPER_CONNECT: zk-1:2181,zk-2:2181,zk-3:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_METRIC_REPORTERS: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
+      KAFKA_JMX_PORT: 49999
+      KAFKA_JMX_HOSTNAME: kafka-2
+
+  kafka-3:
+    image: "confluentinc/cp-enterprise-kafka:${version_confluent}"
+    container_name: kafka-3
+    hostname: kafka-3
+    networks:
+      - confluent
+    volumes:
+      - data-kafka-3:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 103
+      KAFKA_ZOOKEEPER_CONNECT: zk-1:2181,zk-2:2181,zk-3:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_METRIC_REPORTERS: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
+      KAFKA_JMX_PORT: 49999
+      KAFKA_JMX_HOSTNAME: kafka-3
+
+  schema-registry:
+    image: "confluentinc/cp-schema-registry:${version_confluent}"
+    container_name: schema-registry
+    networks:
+      - confluent
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zk-1:2181,zk-2:2181,zk-3:2181
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
+
+  # connect:
+  #   image: confluentinc/cp-kafka-connect:${version_confluent}
+  #   container_name: connect
+  #   hostname: connect
+  #   ports:
+  #     - "8083:8083"
+  #   volumes:
+  #     - ./data:/data
+  #   networks:
+  #     - confluent
+  #   environment:
+  #     CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+  #     CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+  #     CONNECT_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+  #     CONNECT_REST_PORT: 8083
+  #     CONNECT_GROUP_ID: "connect"
+  #     CONNECT_CONFIG_STORAGE_TOPIC: "connect-config"
+  #     CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
+  #     CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+  #     CONNECT_REPLICATION_FACTOR: 3
+  #     CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 3
+  #     CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 3
+  #     CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 3
+  #     CONNECT_KEY_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+  #     CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+  #     CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+  #     CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+  #     CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+  #     CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
+  #     CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+  #     CONNECT_LOG4J_LOGGERS: org.reflections=ERROR
+  #     CONNECT_PLUGIN_PATH: /usr/share/java
+  #     CONNECT_REST_HOST_NAME: "connect"
+
+  # rest-proxy:
+  #   image: confluentinc/cp-kafka-rest:${version_confluent}
+  #   container_name: rest-proxy
+  #   networks:
+  #     - confluent
+  #   environment:
+  #     KAFKA_REST_HOST_NAME: rest-proxy
+  #     KAFKA_REST_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+  #     KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+  #     KAFKA_REST_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+
+  ksql-server:
+    image: "confluentinc/cp-ksql-server:${version_confluent}"
+    container_name: ksql-server
+    ports:
+      - "8088:8088"
+    networks:
+      - confluent
+    environment:
+      KSQL_CONFIG_DIR: "/etc/ksql"
+      KSQL_LOG4J_OPTS: "-Dlog4j.configuration=file:/etc/ksql/log4j-rolling.properties"
+      KSQL_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+      KSQL_HOST_NAME: ksql-server
+      KSQL_APPLICATION_ID: "etl-demo"
+      KSQL_LISTENERS: "http://0.0.0.0:8088"
+      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      KSQL_KSQL_SERVER_UI_ENABLED: "false"
+
+  ksql-cli:
+    image: confluentinc/cp-ksql-cli:5.1.2
+    container_name: ksql-cli
+    networks:
+      - confluent
+    entrypoint: /bin/sh
+    tty: true
+    volumes:
+      - ./mount/test/:/test/
+
+  base:
+    image: confluentinc/cp-kafka-connect:${version_confluent}
+    container_name: base
+    hostname: base
+    networks:
+      - confluent
+    volumes:
+      - ./files:/test
+    command: /bin/sh
+    tty: true
+    environment:
+      CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-${version_confluent}.jar
+    volumes:
+      - ./mount/test/:/test/
+
+volumes:
+  data-zk-1:
+  data-zk-2:
+  data-zk-3:
+  data-kafka-1:
+  data-kafka-2:
+  data-kafka-3:
+
+networks:
+  confluent:
