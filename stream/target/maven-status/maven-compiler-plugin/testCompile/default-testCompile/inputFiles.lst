@@ -1,0 +1,6 @@
+/Users/marwakrouma/Documents/cedric/docker-kafka/stream/src/test/java/fr/sfr/data/kafka/topology/EventEnrichTopologyTest.java
+/Users/marwakrouma/Documents/cedric/docker-kafka/stream/src/test/java/fr/sfr/data/kafka/topology/MacCountTopologyTest.java
+/Users/marwakrouma/Documents/cedric/docker-kafka/stream/src/test/java/fr/sfr/data/kafka/GlobalConfig.java
+/Users/marwakrouma/Documents/cedric/docker-kafka/stream/src/test/java/fr/sfr/data/kafka/topology/IptvEventToAvroTopologyTest.java
+/Users/marwakrouma/Documents/cedric/docker-kafka/stream/src/test/java/fr/sfr/data/kafka/topology/RefClientToAvroTopologyTest.java
+/Users/marwakrouma/Documents/cedric/docker-kafka/stream/src/test/java/fr/sfr/data/kafka/AbstractTopologyTest.java

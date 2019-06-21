@@ -1,0 +1,18 @@
+{
+  "namespace": "fr.sfr.data.kafka.model",
+  "name": "Iptv",
+  "type": "record",
+  "fields": [
+    {
+      "name": "groupId",
+      "type": ["null", "string"],
+      "default" : null
+    },
+    {
+      "name": "mac",
+      "type": ["null", "string"],
+      "default" : null
+    }
+  ]
+}
+

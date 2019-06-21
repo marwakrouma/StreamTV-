@@ -1,0 +1,12 @@
+
+{
+  "namespace": "fr.sfr.data.kafka.model",
+  "name": "WindowCount",
+  "type": "record",
+  "fields": [
+        {"name": "channel",  "type": "string"},
+        {"name": "audience", "type": "long"},
+        {"name": "windowStart", "type": "string"},
+        {"name": "windowEnd", "type": "string"}
+  ]
+}

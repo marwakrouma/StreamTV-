@@ -1,0 +1,29 @@
+{
+  "groups": [
+    {
+      "name": "",
+      "type": "fr.sfr.data.kafka.ApplicationConfig$TopicConfig",
+      "sourceType": "fr.sfr.data.kafka.ApplicationConfig",
+      "sourceMethod": "topicConfig()"
+    },
+    {
+      "name": "",
+      "type": "fr.sfr.data.kafka.ApplicationConfig$TopologyConfig",
+      "sourceType": "fr.sfr.data.kafka.ApplicationConfig",
+      "sourceMethod": "topologyConfig()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "configs",
+      "type": "java.util.Map<java.lang.String,java.util.Map<java.lang.String,java.lang.Object>>",
+      "sourceType": "fr.sfr.data.kafka.ApplicationConfig$TopologyConfig"
+    },
+    {
+      "name": "topic",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "fr.sfr.data.kafka.ApplicationConfig$TopicConfig"
+    }
+  ],
+  "hints": []
+}
